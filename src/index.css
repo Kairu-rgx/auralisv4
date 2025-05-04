@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+/* Global scrollbar color for HTML element */
+html {
+  scrollbar-color: hsla(0, 0%, 46%, 0.5) transparent;
+}
+
+/* Minimalist scrollbar styles */
+.scrollbar-minimalist {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+/* WebKit scrollbar styles */
+.scrollbar-minimalist::-webkit-scrollbar {
+  background-color: transparent;
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-button {
+ display: none;
+  border-radius: 5px;
+}
+
+.scrollbar-minimalist::-webkit-scrollbar-corner {
+  display: none !important;
+  background: transparent !important;
+}
+
+.scrollbar-minimalist::-webkit-scrollbar-track {
+  background: transparent;
+  transition: background 300ms ease;
+}
+
+.scrollbar-minimalist::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 300ms ease;
+}
+
+/* Hover state for scrollbar */
+.scrollbar-minimalist:hover {
+  scrollbar-color: #053983 #1f293700;
+}
+
+.scrollbar-minimalist:hover::-webkit-scrollbar-thumb {
+  background-color: #053983;
+}
+
+.scrollbar-minimalist:hover::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.scrollbar-minimalist::-webkit-scrollbar-thumb:hover {
+  background-color: #e8f0ff;
+}
+
+/* Hide scrollbar in Firefox, IE, and Edge */
+.scrollable-element {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Settings Modal Enhancements */
+/* Settings Modal Styles */
+.setting-section {
+  @apply space-y-4;
+}
+
+.section-header {
+  @apply text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2;
+}
+
+.setting-item {
+  @apply bg-blue-900/20 p-4 rounded-lg border border-blue-800/30 transition-colors duration-200;
+  &:hover {
+    @apply border-blue-700/50;
+  }
+}
+
+.setting-label {
+  @apply text-gray-200 mb-2 block;
+}
+
+.setting-select {
+  @apply w-full bg-blue-900/40 text-gray-200 border border-blue-700/30 rounded-lg px-4 py-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent;
+  @apply cursor-pointer transition-colors duration-200;
+  &:hover {
+    @apply border-blue-600/50;
+  }
+}
+
+/* Enhanced Toggle Switch */
+.toggle-switch {
+  @apply block w-10 h-6 rounded-full transition-colors duration-300 relative;
+  @apply bg-gray-600; /* Default state */
+}
+
+.toggle-switch-handle {
+  @apply absolute left-1 top-1 bg-white w-4 h-4 rounded-full;
+  @apply shadow-md transition-transform duration-300;
+  transform: translateX(0);
+}
+
+input:checked ~ .toggle-switch {
+  @apply bg-blue-500;
+}
+
+input:checked ~ .toggle-switch .toggle-switch-handle {
+  transform: translateX(1rem);
+}
+
+/* Theme Options */
+.theme-option {
+  @apply flex-1 py-2 rounded-md border text-center;
+  @apply transition-colors duration-200 hover:bg-blue-900/40;
+  @apply border-blue-900 hover:border-blue-700;
+}
+
+.theme-option-active {
+  @apply bg-blue-600 border-blue-400 text-white;
+}
+
+/* Color Picker */
+.color-option {
+  @apply w-8 h-8 rounded-full border-2 cursor-pointer;
+  @apply transition-all duration-200 hover:scale-110;
+  @apply border-transparent hover:border-blue-200;
+}
+
+.color-option-active {
+  @apply border-white scale-105;
+}
+
+/* Buttons */
+.settings-button {
+  @apply transition-colors duration-200 focus:outline-none;
+  @apply focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-blue-950/50;
+}
+
+.settings-button-primary {
+  @apply bg-blue-600 hover:bg-blue-500 text-white;
+}
+
+.settings-button-secondary {
+  @apply bg-transparent border border-blue-700 hover:bg-blue-900/30 text-white;
+}
+
+/* Cache Progress Bar */
+.cache-progress {
+  @apply flex-1 h-2 rounded-full overflow-hidden bg-blue-900/30;
+}
+
+.cache-progress::-webkit-progress-bar {
+  @apply bg-blue-900/30 rounded-full;
+}
+
+.cache-progress::-webkit-progress-value {
+  @apply bg-blue-500 rounded-full;
+}
+
+.cache-progress::-moz-progress-bar {
+  @apply bg-blue-500 rounded-full;
+}
