@@ -1,20 +1,14 @@
 import { useState } from 'react';
-import HomeIcon from '../assets/icons/home.svg';
 import SearchIcon from '../assets/icons/searchw.svg';
 import LibraryIcon from '../assets/icons/playlistw.svg';
-import LikedSongsIcon from '../assets/icons/favoritesw.svg';
-import CreatePlaylistIcon from '../assets/icons/playlistb.svg';
 import FavoritesIcon from '../assets/icons/favoritesb.svg';
 import SettingsIcon from '../assets/icons/settingsw.svg';
 import Profile from '../assets/images/kairu.jpg';
 
-export default function ProfileCard({ onSettingsClick, onLibraryClick }) {
+export default function ProfileCard({ onSettingsClick, onLibraryClick, onFavoritesClick }) {
   const navItems = [
-    { name: 'Home', icon: HomeIcon },
     { name: 'Search', icon: SearchIcon },
     { name: 'Library', icon: LibraryIcon },
-    { name: 'Liked Songs', icon: LikedSongsIcon },
-    { name: 'Create Playlist', icon: CreatePlaylistIcon },
     { name: 'Favorites', icon: FavoritesIcon },
     { name: 'Settings', icon: SettingsIcon }
   ];
@@ -48,6 +42,7 @@ export default function ProfileCard({ onSettingsClick, onLibraryClick }) {
                   e.preventDefault();
                   if (item.name === 'Settings') onSettingsClick();
                   if (item.name === 'Library') onLibraryClick();
+                  if (item.name === 'Favorites') onFavoritesClick();
                 }}
               >
                 <img 

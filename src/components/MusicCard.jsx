@@ -12,10 +12,42 @@ export default function MusicCard({
   onPlay,
   isPlaying,
   isCurrentSong,
-  onAddToQueue
+  onAddToQueue,
+  onAddToFavorites
 }) {
-  const [isHoveringDots, setIsHoveringDots] = useState(false);
-  const buttonRef = useRef(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleMenuClick = (e) => {
+    e.stopPropagation();
+    setShowMenu(!showMenu);
+  };
+
+  const handleAddToQueue = (e) => {
+    e.stopPropagation();
+    onAddToQueue();
+    setShowMenu(false);
+  };
+
+  const handleAddToFavorites = (e) => {
+    e.stopPropagation();
+    onAddToFavorites();
+    setShowMenu(false);
+  };
 
   return (
     <div className="group bg-gray-800 hover:bg-gray-700 transition cursor-pointer rounded-lg h-[400px] w-full flex flex-col relative">
@@ -60,26 +92,42 @@ export default function MusicCard({
 
       {/* Button Container */}
       <div className="absolute bottom-3 right-3 flex items-center gap-[10px]">
-        {/* Dots Button */}
-        <button 
-          ref={buttonRef}
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddToQueue();
-          }}
-          onMouseEnter={() => setIsHoveringDots(true)}
-          onMouseLeave={() => setIsHoveringDots(false)}
-          className={`p-2 rounded-full transition-all ${
-            isHoveringDots ? 'bg-gray-600 scale-105' : 'bg-transparent'
-          } opacity-0 group-hover:opacity-100 focus:opacity-100`}
-          aria-label="Add to queue"
-        >
-          <img 
-            src={DotsIcon} 
-            alt="Add to queue" 
-            className="w-5 h-5 filter brightness-0 invert-[0.7] hover:invert-[0.9]"
-          />
-        </button>
+        {/* Dots Button with Menu */}
+        <div className="relative" ref={menuRef}>
+          <button 
+            onClick={handleMenuClick}
+            className={`p-2 rounded-full transition-all ${
+              showMenu ? 'bg-gray-600 scale-105' : 'bg-transparent'
+            } opacity-0 group-hover:opacity-100 focus:opacity-100`}
+            aria-label="Song options"
+          >
+            <img 
+              src={DotsIcon} 
+              alt="Options" 
+              className="w-5 h-5 filter brightness-0 invert-[0.7] hover:invert-[0.9]"
+            />
+          </button>
+          
+          {/* Menu Popup */}
+          {showMenu && (
+            <div className="absolute right-0 bottom-full mb-2 w-48 bg-gray-800 rounded-md shadow-lg z-10 border border-gray-700">
+              <div className="py-1">
+                <button
+                  onClick={handleAddToFavorites}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
+                >
+                  Add to favorites
+                </button>
+                <button
+                  onClick={handleAddToQueue}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
+                >
+                  Add to queue
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
         
         {/* Play Button */}
         <button 
@@ -117,5 +165,6 @@ MusicCard.defaultProps = {
   coverArt: null,
   isPlaying: false,
   isCurrentSong: false,
-  onAddToQueue: () => {}
+  onAddToQueue: () => {},
+  onAddToFavorites: () => {}
 };

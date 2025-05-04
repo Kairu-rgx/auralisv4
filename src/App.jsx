@@ -4,6 +4,7 @@ import MusicCard from './components/MusicCard';
 import NowPlayingCard from './components/NowPlayingCard';
 import SettingsModal from './components/SettingsModal';
 import LibraryModal from './components/LibraryModal';
+import FavoritesModal from './components/FavoritesModal';
 import SearchIcon from './assets/Icons/searchw.svg';
 import './index.css';
 
@@ -21,7 +22,7 @@ const yourSongs = [
     duration: "3:45",
     album: "Hozier",
     coverArt: LRPD,
-    audioFile: null
+    audioFile: "/songs/LRPD.mp3"
   },
   {
     id: 2,
@@ -30,7 +31,7 @@ const yourSongs = [
     duration: "4:02",
     album: "Freudian",
     coverArt: Always,
-    audioFile: null
+    audioFile:"/songs/Always.mp3"
   },
   {
     id: 3,
@@ -39,7 +40,7 @@ const yourSongs = [
     duration: "5:09",
     album: "Coldplay",
     coverArt: Scientist,
-    audioFile: null
+    audioFile: "/songs/Scientist.mp3"
   },
   {
     id: 4,
@@ -48,7 +49,7 @@ const yourSongs = [
     duration: "3:43",
     album: "Paramore",
     coverArt: SIY,
-    audioFile: null
+    audioFile: "/songs/SIY.mp3"
   },
   { 
     id: 5,
@@ -65,6 +66,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
   const [nowPlaying, setNowPlaying] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -73,6 +75,10 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [queue, setQueue] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [isShuffled, setIsShuffled] = useState(false);
+  const [isLooping, setIsLooping] = useState(false);
   const audioRef = useRef(null);
 
   const filteredSongs = yourSongs.filter(song =>
@@ -97,38 +103,26 @@ export default function App() {
 
   const playSong = (song) => {
     if (!song.audioFile) {
-      setError("No audio file available for this song");
+      console.error("No audio file available for this song");
       return;
     }
 
+    setNowPlaying(song);
     setIsLoading(true);
-    setError(null);
-    
-    try {
-      if (nowPlaying?.id !== song.id) {
-        audioRef.current.src = song.audioFile;
-        setNowPlaying(song);
-      }
-      
-      const playPromise = audioRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-            setIsLoading(false);
-          })
-          .catch(err => {
-            setError(`Playback failed: ${err.message}`);
-            setIsPlaying(false);
-            setIsLoading(false);
-          });
-      }
-    } catch (err) {
-      setError(`Error: ${err.message}`);
-      setIsPlaying(false);
-      setIsLoading(false);
-    }
+    setHistory(prev => [...prev, song]);
+    audioRef.current.src = song.audioFile;
+    audioRef.current.currentTime = 0;
+    audioRef.current
+      .play()
+      .then(() => {
+        setIsPlaying(true);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Playback error:", err);
+        setIsPlaying(false);
+        setIsLoading(false);
+      });
   };
 
   const handleAddToQueue = (song) => {
@@ -137,8 +131,26 @@ export default function App() {
       title: song.title,
       artist: song.artist,
       duration: song.duration,
-      coverArt: song.coverArt
+      coverArt: song.coverArt,
+      audioFile: song.audioFile
     }]);
+  };
+
+  const handleAddToFavorites = (song) => {
+    setFavorites(prev => {
+      const exists = prev.some(fav => fav.id === song.id);
+      if (exists) {
+        return prev.filter(fav => fav.id !== song.id);
+      }
+      return [...prev, {
+        id: song.id,
+        title: song.title,
+        artist: song.artist,
+        duration: song.duration,
+        coverArt: song.coverArt,
+        audioFile: song.audioFile
+      }];
+    });
   };
 
   const updateTime = () => {
@@ -165,25 +177,92 @@ export default function App() {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  // Handle queue playback when current song ends
-  useEffect(() => {
-    const handleEnded = () => {
-      if (queue.length > 0) {
-        const nextSong = yourSongs.find(song => song.id === queue[0].id);
-        if (nextSong) {
-          setQueue(prev => prev.slice(1));
-          playSong(nextSong);
-        }
+  const handleNextSong = () => {
+    if (queue.length > 0) {
+      // Play next song in queue
+      const nextSong = queue[0];
+      setQueue(prev => prev.slice(1));
+      playSong(nextSong);
+    } else {
+      // Pick a random song from your library (excluding current song if any)
+      const availableSongs = yourSongs.filter(song => 
+        !nowPlaying || song.id !== nowPlaying.id
+      );
+      
+      if (availableSongs.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableSongs.length);
+        const randomSong = availableSongs[randomIndex];
+        playSong(randomSong);
       } else {
+        // No songs available (edge case)
+        setNowPlaying(null);
         setIsPlaying(false);
+      }
+    }
+  };
+
+  const handlePreviousSong = () => {
+    if (history.length > 1) {
+      const previousSong = history[history.length - 2];
+      setHistory(prev => prev.slice(0, -1));
+      playSong(previousSong);
+    }
+  };
+
+  const toggleShuffle = () => {
+    setIsShuffled(!isShuffled);
+  };
+
+  const toggleLoop = () => {
+    setIsLooping(!isLooping);
+  };
+
+  const handleStop = () => {
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    setNowPlaying(null);
+    setIsPlaying(false);
+  };
+
+  const handleSongEnd = () => {
+    if (isLooping && nowPlaying) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
+      return;
+    }
+    handleNextSong();
+  };
+
+  useEffect(() => {
+    if (!nowPlaying && queue.length > 0) {
+      const nextSong = queue[0];
+      setQueue(prev => prev.slice(1));
+      playSong(nextSong);
+    }
+  }, [nowPlaying, queue]);
+
+  const handleRemoveFromQueue = (song) => {
+    setQueue(prevQueue => prevQueue.filter(q => q.id !== song.id));
+  };
+
+  // Keyboard controls
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlayPause();
       }
     };
 
-    audioRef.current.addEventListener('ended', handleEnded);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
-      audioRef.current?.removeEventListener('ended', handleEnded);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [queue]);
+  }, [isPlaying, nowPlaying]);
+
+  useEffect(() => {
+    audioRef.current.loop = isLooping;
+  }, [isLooping]);
 
   return (
     <div className="h-screen w-screen text-white relative overflow-hidden">
@@ -191,7 +270,7 @@ export default function App() {
       <audio
         ref={audioRef}
         onTimeUpdate={updateTime}
-        onEnded={() => setIsPlaying(false)}
+        onEnded={handleSongEnd}
         onLoadedMetadata={updateTime}
         onError={(e) => {
           setError("Audio playback error");
@@ -216,7 +295,8 @@ export default function App() {
         <div className="w-64 flex-shrink-0 hidden lg:block overflow-y-auto scrollbar-minimalist">
           <ProfileCard 
             onSettingsClick={() => setShowSettings(true)}
-            onLibraryClick={() => setShowLibrary(true)} 
+            onLibraryClick={() => setShowLibrary(true)}
+            onFavoritesClick={() => setShowFavorites(true)} 
           />
         </div>
 
@@ -252,6 +332,8 @@ export default function App() {
                   isPlaying={nowPlaying?.id === song.id && isPlaying}
                   isCurrentSong={nowPlaying?.id === song.id}
                   onAddToQueue={() => handleAddToQueue(song)}
+                  onAddToFavorites={() => handleAddToFavorites(song)}
+                  isFavorite={favorites.some(fav => fav.id === song.id)}
                 />
               ))
             ) : (
@@ -262,23 +344,34 @@ export default function App() {
           </div>
         </main>
 
-        {/* Right Sidebar */}
-        <div className="w-80 flex-shrink-0 hidden xl:block overflow-y-auto scrollbar-minimalist">
-          <NowPlayingCard 
-            nowPlaying={nowPlaying}
-            isPlaying={isPlaying}
-            currentTime={currentTime}
-            duration={duration}
-            onPlayPause={togglePlayPause}
-            onSeek={handleSeek}
-            formatTime={formatTime}
-            volume={volume}
-            onVolumeChange={handleVolumeChange}
-            isLoading={isLoading}
-            error={error}
-            queue={queue}
-          />
-        </div>
+        {/* Right Sidebar - Now Playing Card */}
+        {nowPlaying && (
+          <div className="w-80 flex-shrink-0 hidden xl:block overflow-y-auto scrollbar-minimalist">
+            <NowPlayingCard 
+              nowPlaying={nowPlaying}
+              isPlaying={isPlaying}
+              currentTime={currentTime}
+              duration={duration}
+              onPlayPause={togglePlayPause}
+              onSeek={handleSeek}
+              formatTime={formatTime}
+              volume={volume}
+              onVolumeChange={handleVolumeChange}
+              isLoading={isLoading}
+              error={error}
+              queue={queue}
+              onRemoveFromQueue={handleRemoveFromQueue}
+              onNext={handleNextSong}
+              onPrevious={handlePreviousSong}
+              onShuffle={toggleShuffle}
+              onToggleLoop={toggleLoop}
+              isLooping={isLooping}
+              isShuffled={isShuffled}
+              hasPrevious={history.length > 1}
+              onStop={handleStop}
+            />
+          </div>
+        )}
       </div>
 
       {/* Settings Modal */}
@@ -292,6 +385,15 @@ export default function App() {
         isOpen={showLibrary} 
         onClose={() => setShowLibrary(false)} 
         title="Your Library"
+      />
+
+      {/* Favorites Modal */}
+      <FavoritesModal
+        isOpen={showFavorites}
+        onClose={() => setShowFavorites(false)}
+        favorites={favorites}
+        onPlay={playSong}
+        onRemove={(song) => setFavorites(favorites.filter(fav => fav.id !== song.id))}
       />
     </div>
   );
