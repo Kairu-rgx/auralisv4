@@ -13,6 +13,20 @@ import Always from './assets/Images/Always.jpg';
 import Scientist from './assets/Images/Scientist.jpg';
 import SIY from './assets/Images/SIY.jpg';
 import Silakbo from './assets/Images/Silakbo.jpg';
+import Woman from './assets/Images/Woman.jpg';
+import Juicy from './assets/Images/Juicy.jpg';
+import IDDD from './assets/Images/IDDD.jpg';
+import Streets from './assets/Images/Streets.jpg';
+import KissMeMore from './assets/Images/KissMeMore.jpg';
+import LikeThat from './assets/Images/LikeThat.jpg';
+import FeelIt from './assets/Images/FeelIt.jpg';
+import BackStreetGirl from './assets/Images/BackStreetGirl.jpg';
+import Awkward from './assets/Images/Awkward.jpg';
+import DontForgetAboutMe from './assets/Images/DontForgetAboutMe.jpg';
+import MoreThanJustFriends from './assets/Images/MoreThanJustFriends.jpg';
+import Worthless from './assets/Images/Worthless.jpg';
+import DeathCamp from './assets/Images/DeathCamp.jpg';
+
 
 const yourSongs = [
   {
@@ -60,7 +74,126 @@ const yourSongs = [
     coverArt: Silakbo,
     audioFile: "/songs/Multo.mp3"
   },
+  {
+    id: 6,
+    title: "Woman",
+    artist: 'Doja Cat',
+    duration: "2:52",
+    album: "Planet Her",
+    coverArt: Woman,
+    audioFile: "/songs/Woman.mp3"
+  },
+  {
+    id: 7,
+    title: "Juicy",
+    artist: "Doja Cat",
+    duration: "3:19",
+    album: "Pink",
+    coverArt: Juicy,
+    audioFile: "/songs/Juicy.mp3"
+  },
+  {
+    id: 8,
+    title: "IDDD",
+    artist: "Doja Cat",
+    duration: "2:19",
+    album: "Planet Her",
+    coverArt: IDDD,
+    audioFile: "/songs/IDDD.mp3"
+  },
+  {
+    id: 9,
+    title: "Streets",
+    artist: "Doja Cat",
+    duration: "3:46",
+    album: "Planet Her",
+    coverArt: Streets,
+    audioFile: "/songs/Streets.mp3"
+  },
+  {
+    id: 10,
+    title: "Kiss Me More",
+    artist: "Doja Cat",
+    duration: "3:29",
+    album: "Planet Her",
+    coverArt: KissMeMore,
+    audioFile: "/songs/KissMeMore.mp3"
+  },
+  {
+    id: 11,
+    title: "Like That",
+    artist: "Doja Cat",
+    duration: "2:44",
+    album: "Hot Pink",
+    coverArt: LikeThat,
+    audioFile: "/songs/LikeThat.mp3"
+  },
+  {
+    id: 12,
+    title: "Back Street Girl",
+    artist: "D4VID",
+    duration: "4:11",
+    album: "Back Street Girl",
+    coverArt: BackStreetGirl,
+    audioFile: "/songs/BackStreetGirl.mp3"
+  },
+  {
+    id: 13,
+    title: "Feel It",
+    artist: "D4VID",
+    duration: "2;38",
+    album: "Feel It From(INVINCIBLE)",
+    coverArt: FeelIt,
+    audioFile: "/songs/FeelIt.mp3"
+  },
+  {
+    id: 14,
+    title: "Awkward",
+    artist: "D4VID",
+    duration: "3:48",
+    album: "Awkward",
+    coverArt: Awkward,
+    audioFile: "/songs/Awkward.mp3"
+  },
+  {
+    id: 15,
+    title: "Dont Forget About Me",
+    artist: "D4VID",
+    duration: "2:30",
+    album: "D4VID",
+    coverArt: DontForgetAboutMe,
+    audioFile: "/songs/DontForgetAboutMe.mp3"
+  },
+  {
+    id: 16,
+    title: "More Than Just Friends",
+    artist: "D4VID",
+    duration: "2:07",
+    album: "D4VID",
+    coverArt: MoreThanJustFriends,
+    audioFile: "/songs/MoreThanJustFriends.mp3"
+  },
+  {
+    id: 17,
+    title: "Worthless",
+    artist: "D4VID",
+    duration: "2:44",
+    album: "D4VID",
+    coverArt: Worthless,
+    audioFile: "/songs/WORTHLESS.mp3"
+  },
+  {
+    id: 18,
+    title: "Death Camp",
+    artist: "Tyler The Creator",
+    duration: "3:10",
+    album: "Tyler The Creator",
+    coverArt: DeathCamp,
+    audioFile: "/songs/DEATHCAMP.mp3"
+  },
+  
 ];
+
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -179,12 +312,10 @@ export default function App() {
 
   const handleNextSong = () => {
     if (queue.length > 0) {
-      // Play next song in queue
       const nextSong = queue[0];
       setQueue(prev => prev.slice(1));
       playSong(nextSong);
     } else {
-      // Pick a random song from your library (excluding current song if any)
       const availableSongs = yourSongs.filter(song => 
         !nowPlaying || song.id !== nowPlaying.id
       );
@@ -194,7 +325,6 @@ export default function App() {
         const randomSong = availableSongs[randomIndex];
         playSong(randomSong);
       } else {
-        // No songs available (edge case)
         setNowPlaying(null);
         setIsPlaying(false);
       }
@@ -222,6 +352,8 @@ export default function App() {
     audioRef.current.currentTime = 0;
     setNowPlaying(null);
     setIsPlaying(false);
+    setCurrentTime(0);
+    setHistory([]);
   };
 
   const handleSongEnd = () => {
@@ -245,7 +377,6 @@ export default function App() {
     setQueue(prevQueue => prevQueue.filter(q => q.id !== song.id));
   };
 
-  // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === 'Space') {
@@ -266,7 +397,6 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen text-white relative overflow-hidden">
-      {/* Hidden audio element */}
       <audio
         ref={audioRef}
         onTimeUpdate={updateTime}
@@ -278,7 +408,6 @@ export default function App() {
         }}
       />
 
-      {/* Background Gradient */}
       <div 
         className="absolute inset-0 -z-10"
         style={{
@@ -289,9 +418,7 @@ export default function App() {
         }}
       ></div>
 
-      {/* Content Container */}
       <div className="absolute inset-0 flex gap-6 p-6">
-        {/* Left Sidebar */}
         <div className="w-64 flex-shrink-0 hidden lg:block overflow-y-auto scrollbar-minimalist">
           <ProfileCard 
             onSettingsClick={() => setShowSettings(true)}
@@ -300,9 +427,7 @@ export default function App() {
           />
         </div>
 
-        {/* Main Content */}
         <main className="flex-1 overflow-y-auto scrollbar-minimalist flex flex-col">
-          {/* Search Bar */}
           <div className="relative mb-4 p-6">
             <div className="relative w-200 mx-auto">
               <img 
@@ -320,7 +445,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Your Songs Section */}
           <h1 className="text-2xl font-bold mb-4 px-6">Your Songs</h1>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 flex-grow overflow-y-auto scrollbar-minimalist pb-6 px-6">
             {filteredSongs.length > 0 ? (
@@ -344,7 +468,6 @@ export default function App() {
           </div>
         </main>
 
-        {/* Right Sidebar - Now Playing Card */}
         {nowPlaying && (
           <div className="w-80 flex-shrink-0 hidden xl:block overflow-y-auto scrollbar-minimalist">
             <NowPlayingCard 
@@ -374,20 +497,17 @@ export default function App() {
         )}
       </div>
 
-      {/* Settings Modal */}
       <SettingsModal 
         isOpen={showSettings} 
         onClose={() => setShowSettings(false)} 
       />
 
-      {/* Library Modal */}
       <LibraryModal 
         isOpen={showLibrary} 
         onClose={() => setShowLibrary(false)} 
         title="Your Library"
       />
 
-      {/* Favorites Modal */}
       <FavoritesModal
         isOpen={showFavorites}
         onClose={() => setShowFavorites(false)}
